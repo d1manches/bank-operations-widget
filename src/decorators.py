@@ -1,9 +1,13 @@
-# decorators.py
 from functools import wraps
 import logging
+from typing import Any, Callable, Optional, TypeVar, cast
 
 
-def log(filename=None):
+T = TypeVar('T')
+F = TypeVar('F', bound=Callable[..., Any])
+
+
+def log(filename: Optional[str] = None) -> Callable[[F], F]:
     """
     Декоратор для логирования начала и конца выполнения функции, а также ее результатов или возникших ошибок.
 
@@ -12,17 +16,17 @@ def log(filename=None):
 
     Примеры:
         @log(filename="mylog.txt")
-        def my_function(x, y):
+        def my_function(x: int, y: int) -> int:
             return x + y
 
         @log()
-        def my_function_console(x, y):
+        def my_function_console(x: int, y: int) -> int:
             return x + y
     """
 
-    def decorator(func):
+    def decorator(func: F) -> F:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             logger = logging.getLogger(func.__name__)
             logger.setLevel(logging.INFO)
 
@@ -45,6 +49,6 @@ def log(filename=None):
                 logger.error(f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}")
                 raise  # Re-raise the exception to avoid masking errors
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator

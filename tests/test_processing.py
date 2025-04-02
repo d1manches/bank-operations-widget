@@ -1,5 +1,6 @@
 import pytest
-from src import filter_by_state, sort_by_date
+from typing import List, Dict, Any
+from src.processing import filter_by_state, sort_by_date
 
 
 class TestProcessing:
@@ -9,10 +10,15 @@ class TestProcessing:
             ("EXECUTED", 3),
             ("CANCELED", 1),
             ("PENDING", 1),
-            ("UNKNOWN", 0),  # Отсутствующий статус
+            ("UNKNOWN", 0),
         ],
     )
-    def test_filter_by_state(self, transaction_data: list[dict], state: str, expected_count: int) -> None:
+    def test_filter_by_state(
+        self,
+        transaction_data: List[Dict[str, Any]],
+        state: str,
+        expected_count: int
+    ) -> None:
         filtered_data = filter_by_state(transaction_data, state)
         assert len(filtered_data) == expected_count
         for transaction in filtered_data:
@@ -21,18 +27,23 @@ class TestProcessing:
     def test_filter_by_state_empty_list(self) -> None:
         assert filter_by_state([], "EXECUTED") == []
 
-    def test_sort_by_date_descending(self, transaction_data: list[dict]) -> None:
+    def test_sort_by_date_descending(
+        self,
+        transaction_data: List[Dict[str, Any]]
+    ) -> None:
         sorted_data = sort_by_date(transaction_data)
         assert sorted_data[0]["date"] == "2023-10-28T10:00:00.000Z"
         assert sorted_data[-1]["date"] == "2023-10-26T10:00:00.000Z"
 
-    def test_sort_by_date_ascending(self, transaction_data: list[dict]) -> None:
+    def test_sort_by_date_ascending(
+        self,
+        transaction_data: List[Dict[str, Any]]
+    ) -> None:
         sorted_data = sort_by_date(transaction_data, reverse=False)
         assert sorted_data[0]["date"] == "2023-10-26T10:00:00.000Z"
         assert sorted_data[-1]["date"] == "2023-10-28T10:00:00.000Z"
 
-    def test_sort_by_date_same_dates(self, transaction_data: list[dict]) -> None:
-        # Проверяем, что порядок с одинаковыми датами сохраняется (в пределах разумного)
+    def test_sort_by_date_same_dates(self) -> None:
         data_with_same_dates = [
             {"date": "2023-10-27T10:00:00.000Z", "state": "A"},
             {"date": "2023-10-27T10:00:00.000Z", "state": "B"},
