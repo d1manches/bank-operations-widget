@@ -1,120 +1,157 @@
-# Виджет банковских операций
+## Bank Operations Widget
 
-Этот проект предоставляет виджет для отображения и обработки данных о банковских операциях.  Он включает функции фильтрации и сортировки операций.
+This project provides a widget for displaying and processing bank operations data, including filtering and sorting.
 
-## Установка
+Installation:
 
-1. Клонируем репозиторий: `git clone <repository_url>`
-2. Установите зависимости: "pip install -r requirements.txt` (Создайте `requirements.txt` с библиотекой `масок` внутри)
-
-## Usage
-
-Основным скриптом является `main.py`.  Он импортирует функции из модуля "src/processing.py`, "src/masks.py` и `src/generators.py`.
-
-Для запуска скрипта:
 ```bash
-python main.py
+git clone <repository_url>
+```
+```bash
+pip install -r requirements.txt
 ```
 
-Пример ▌
-=======
-Скрипт использует примеры данных для демонстрации функциональности.   
-Вы можете изменить test_data в main.py, чтобы использовать свои собственные данные. 
-Скрипт main.py Теперь также демонстрирует использование декоратора @log. 
-Журналы будут выводиться на консоль, если при
-применении декоратора не указано имя файла (например, @log(имя файла="app.log")).
+# Usage:
 
-▌Функции
-=======
-• decorators.py: Содержит средство оформления журнала для автоматического ведения журнала выполнения функции,
-включая успешные результаты и исключения.
+Run main.py:
+```bash
+python main.py
+``` 
 
-• filter_by_state(операции, состояние="ВЫПОЛНЕНО"): Фильтрует список справочников операций по ключу состояния.
-   Возвращает новый список, содержащий только операции с указанным состоянием.
+Follow the interactive menu to:
 
-• sort_by_date(операции, reverse=True): Сортирует список справочников операций по ключу даты.
-   Возвращает новый список, отсортированный по дате, по умолчанию в порядке убывания.
+* Load transactions from JSON, CSV, or XLSX files
 
-• mask_account_card(данные): маскирует конфиденциальную информацию в номерах счетов или карт. 
-   Автоматически определяет тип данных и применяет соответствующую маскировку.
+* Filter transactions by status (EXECUTED, CANCELED, PENDING)
 
-• get_data(date_string): Преобразует строки дат в определенный формат (ДД.ММ.ГГГГ).
+* Sort transactions by date (ascending/descending)
 
-• get_mask_card_number(номер карты): маскирует номер карты, показывая только первые 6 и последние 4 цифры.
+* Filter by currency (RUB only or all)
 
-• get_mask_account(номер учетной записи): маскирует номер учетной записи, показывая только последние 4 цифры.
+* Search in transaction descriptions
 
-• filter_by_currency(транзакции, код валюты): Фильтрует список транзакций на основе указанного кода валюты.
+* View category statistics
 
-• transaction_descriptions(транзакции): извлекает описание каждой транзакции из списка.
+### Main Features
+Core Modules
 
-• card_number_generator (начало, конец): генерирует последовательность отформатированных номеров карточек в заданном диапазоне, что полезно для тестирования.
+* Interactive command-line interface
+* Transaction processing pipeline
+* Integrated display of masked transaction data
+* Statistical analysis by categories
 
-▌Средство оформления журнала
-====
-Декоратор @log используется для автоматического ведения журнала выполнения функций.
+### Newly Added Functions:
+* process_transactions() - Main transaction processing workflow 
+* print_transaction() - Formats and displays transaction details 
+* get_user_choice() - Handles user input with validation 
+* filter_transactions_by_description() - Regex-based description search 
+* count_transactions_by_category() - Category statistics counter
 
-▌ИСПОЛЬЗОВАНИЕ:
-===
-из журнала импорта декораторов
-````
-@
-log определяет мою функцию(x, y):
-    возвращает x + y
+### Existing Functions (Enhanced):
+* filter_by_state() - Now case-insensitive 
+* sort_by_date() - Supports both ascending/descending
+* mask_account_card() - Improved account/card detection 
+* calculate_transaction_amount() - Added currency conversion
 
-@log(имя файла="mylog.txt")
-определяет другую функцию(x, y):
-    вызвать ValueError("Что-то пошло не так")
-````
-▌Особенности:
-=
-• Регистрирует начало и окончание выполнения функции.
-• Регистрирует успешные результаты.
-• Регистрирует исключения, включая тип исключения, сообщение и входные аргументы.
-• Может выполнять вход в консоль или в файл.
+## Function Details
 
-▌Тестирование
-==
-Этот проект включает в себя полный набор тестов, написанных с использованием pytest. Тесты охватывают следующие аспекты:
+Data Processing (processing.py)
+```python
+filter_by_state(operations, state='EXECUTED')  # Case-insensitive filtering
+sort_by_date(operations, reverse=True)         # Date sorting
+count_transactions_by_category(transactions, categories)  # New category counter
+```
+Data Masking (masks.py, widget.py)
+```python
+mask_account_card(data)                # Automatically detects account/card
+get_mask_card_number(card_number)      # Shows first 6/last 4 digits (XXXXXX****XX)
+get_mask_account(account_number)       # Shows last 4 digits (****XXXX)
+```
+Utilities (regex_utils.py, external_api.py)
+```python
+filter_transactions_by_description(transactions, pattern)  # Regex search
+calculate_transaction_amount(transaction)  # Automatic RUB conversion
+```
+Generators (generators.py)
+```python
+card_number_generator(start, end)      # Test card number generator
+filter_by_currency(transactions, code) # Currency filter
+transaction_descriptions(transactions) # Description extractor
+```
+@log Decorator (decorators.py)
+```python
+from src.decorators import log
 
-▌Покрытие тестами
-==
-• masks.py:
-  • Корректно маскирует номера карточек разного формата и длины.
-  • Корректно маскирует номера счетов разной длины.
-  • Обрабатывает крайние случаи, такие как пустые строки и отсутствие входных данных.
+@log  # Console logging
+def my_function(x, y):
+    return x + y
 
-• widget.py:
-  • Корректно идентифицирует и маскирует номера карточек и счетов в зависимости от типа ввода.
-  • Преобразует строки дат в желаемый формат (ДД.ММ.ГГГГ).
-  • Корректно обрабатывает недопустимые форматы дат (возвращает значение None или создает исключение в зависимости от реализации).
+@log(filename="app.log")  # File logging
+def another_function():
+    raise ValueError("Error example")
+```
 
-• processing.py:
-  • Корректно фильтрует списки словарей операций на основе состояния.
-  • Корректно сортирует списки справочников операций по дате как в порядке возрастания, так и в порядке убывания.
-  • Обрабатывает пропущенные или неверные даты в данных.
+## Features:
 
-• tests/test_generators.py:
-  • Точно фильтрует списки транзакций по коду валюты.
-  • Корректно извлекает описания транзакций из списков транзакций.
-  • Генерирует действительные номера карт в пределах указанного диапазона.
+Logs function start/end
 
-▌Запуск тестов
-==
-1. Убедитесь, что у вас установлен pytest (pip install pytest).
-2. Перейдите в корневой каталог проекта (где находится папка tests/).
-3. Запустите тесты, используя следующую команду:  
-````bash
-pytest
- ````
-4. Чтобы сгенерировать отчет о покрытии (показывающий, какие части кода были протестированы), используйте: 
-````bash
-pytest --cov=.
-````
+Records arguments and results
 
-Это запустит все тесты в каталоге tests/ и отобразит результаты. Также будет сгенерирован отчет о покрытии, в котором будет указан процент кода, пройденного тестами. Вы можете просмотреть подробный отчет в формате HTML с помощью:
-````bash
-pytest --cov=. --cov-html-отчет
-````
+Captures exceptions
 
-Это создаст html-каталог cov с файлом index.html для просмотра результатов охвата в вашем браузере.
+Console or file output
+
+# Testing:
+
+### New Test Coverage
+Main application workflow
+
+User input handling
+
+Transaction display formatting
+
+Category statistics calculation
+
+Regex-based search functionality
+
+Running Tests:
+```bash
+# Install dependencies
+pip install pytest pytest-cov
+```
+```bash
+# Run all tests
+pytest tests/
+```
+```bash
+# With coverage report
+pytest --cov=src tests/
+```
+```bash
+# HTML coverage report
+pytest --cov=src --cov-report html
+open htmlcov/index.html
+```
+# Data Formats
+### Supported input formats:
+
+JSON (via utils.py)
+
+CSV (via transaction_reader.py)
+
+Excel (via transaction_reader.py)
+
+### Sample transaction structure:
+```json
+{
+  "date": "2023-05-15T14:30:00",
+  "description": "Payment",
+  "from": "Visa 1234567812345678",
+  "to": "Счет 1234567890123456",
+  "operationAmount": {
+    "amount": "100.00",
+    "currency": {"code": "USD"}
+  },
+  "state": "EXECUTED"
+}
+```
